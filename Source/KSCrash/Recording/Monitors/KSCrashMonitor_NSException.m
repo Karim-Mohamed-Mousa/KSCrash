@@ -57,16 +57,17 @@ static NSUncaughtExceptionHandler* g_previousUncaughtExceptionHandler;
  *
  * @param exception The exception that was raised.
  */
-static void handleException(NSException* exception)
-{
+
+static void handleException(NSException* exception, BOOL currentSnapshotUserReported, NSArray <NSNumber *> *addresses) {
     KSLOG_DEBUG(@"Trapped exception %@", exception);
     if(g_isEnabled)
     {
-        ksmc_suspendEnvironment();
+        if (currentSnapshotUserReported) {
+            ksmc_suspendEnvironment();
+        }
         kscm_notifyFatalExceptionCaptured(false);
 
         KSLOG_DEBUG(@"Filling out context.");
-        NSArray* addresses = [exception callStackReturnAddresses];
         NSUInteger numFrames = addresses.count;
         uintptr_t* callstack = malloc(numFrames * sizeof(*callstack));
         for(NSUInteger i = 0; i < numFrames; i++)
@@ -88,16 +89,19 @@ static void handleException(NSException* exception)
         crashContext->offendingMachineContext = machineContext;
         crashContext->registersAreValid = false;
         crashContext->NSException.name = [[exception name] UTF8String];
+        crashContext->NSException.userInfo = [[NSString stringWithFormat:@"%@", exception.userInfo] UTF8String];
         crashContext->exceptionName = crashContext->NSException.name;
         crashContext->crashReason = [[exception reason] UTF8String];
         crashContext->stackCursor = &cursor;
-
+        crashContext->currentSnapshotUserReported = currentSnapshotUserReported;
 
         KSLOG_DEBUG(@"Calling main crash handler.");
         kscm_handleException(crashContext);
 
         free(callstack);
-
+        if (currentSnapshotUserReported) {
+            ksmc_resumeEnvironment();
+        }
         if (g_previousUncaughtExceptionHandler != NULL)
         {
             KSLOG_DEBUG(@"Calling original exception handler.");
@@ -106,6 +110,13 @@ static void handleException(NSException* exception)
     }
 }
 
+static void handleCurrentSnapshotUserReportedException(NSException* exception, NSArray <NSNumber *> *addresses) {
+    handleException(exception, true, addresses);
+}
+
+static void handleUncaughtException(NSException* exception) {
+    handleException(exception, false, [exception callStackReturnAddresses]);
+}
 
 // ============================================================================
 #pragma mark - API -
@@ -122,8 +133,9 @@ static void setEnabled(bool isEnabled)
             g_previousUncaughtExceptionHandler = NSGetUncaughtExceptionHandler();
             
             KSLOG_DEBUG(@"Setting new handler.");
-            NSSetUncaughtExceptionHandler(&handleException);
-            KSCrash.sharedInstance.uncaughtExceptionHandler = &handleException;
+            NSSetUncaughtExceptionHandler(&handleUncaughtException);
+            KSCrash.sharedInstance.uncaughtExceptionHandler = &handleUncaughtException;
+            KSCrash.sharedInstance.currentSnapshotUserReportedExceptionHandler = &handleCurrentSnapshotUserReportedException;
         }
         else
         {

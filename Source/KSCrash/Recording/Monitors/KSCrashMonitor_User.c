@@ -56,7 +56,7 @@ void kscm_reportUserException(const char* name,
     {
         if(logAllThreads)
         {
-            ksmc_suspendEnvironment();
+//            ksmc_suspendEnvironment();
         }
         if(terminateProgram)
         {
@@ -89,7 +89,7 @@ void kscm_reportUserException(const char* name,
 
         if(logAllThreads)
         {
-            ksmc_resumeEnvironment();
+//            ksmc_resumeEnvironment();
         }
         if(terminateProgram)
         {

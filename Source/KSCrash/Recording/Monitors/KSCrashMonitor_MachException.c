@@ -298,7 +298,7 @@ static void* handleExceptions(void* const userData)
                 exceptionMessage.code[0], exceptionMessage.code[1]);
     if(g_isEnabled)
     {
-        ksmc_suspendEnvironment();
+//        ksmc_suspendEnvironment();
         g_isHandlingCrash = true;
         kscm_notifyFatalExceptionCaptured(true);
 
@@ -364,7 +364,7 @@ static void* handleExceptions(void* const userData)
 
         KSLOG_DEBUG("Crash handling complete. Restoring original handlers.");
         g_isHandlingCrash = false;
-        ksmc_resumeEnvironment();
+//        ksmc_resumeEnvironment();
     }
 
     KSLOG_DEBUG("Replying to mach exception message.");

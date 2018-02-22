@@ -46,6 +46,7 @@ typedef enum
     KSCDeleteAlways
 } KSCDeleteBehavior;
 
+typedef void NSHandledExceptionHandler(NSException *exception, NSArray <NSNumber *> *addresses);
 /**
  * Reports any crashes that occur in the application.
  *
@@ -171,6 +172,9 @@ typedef enum
 
 /** Exposes the uncaughtExceptionHandler if set from KSCrash. Is nil if debugger is running. **/
 @property (nonatomic, assign) NSUncaughtExceptionHandler *uncaughtExceptionHandler;
+
+/** Exposes the currentSnapshotUserReportedExceptionHandler if set from KSCrash. Is nil if debugger is running. **/
+@property (nonatomic, assign) NSHandledExceptionHandler *currentSnapshotUserReportedExceptionHandler;
 
 #pragma mark - Information -
 
