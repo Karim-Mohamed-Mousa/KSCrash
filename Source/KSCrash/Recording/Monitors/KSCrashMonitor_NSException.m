@@ -58,7 +58,11 @@ static NSUncaughtExceptionHandler* g_previousUncaughtExceptionHandler;
  * @param exception The exception that was raised.
  */
 
+<<<<<<< HEAD
 static void handleException(NSException* exception, BOOL currentSnapshotUserReported, NSArray <NSNumber *> *addresses) {
+=======
+static void handleException(NSException* exception, BOOL currentSnapshotUserReported) {
+>>>>>>> report_current_state_exception
     KSLOG_DEBUG(@"Trapped exception %@", exception);
     if(g_isEnabled)
     {
@@ -110,12 +114,21 @@ static void handleException(NSException* exception, BOOL currentSnapshotUserRepo
     }
 }
 
+<<<<<<< HEAD
 static void handleCurrentSnapshotUserReportedException(NSException* exception, NSArray <NSNumber *> *addresses) {
     handleException(exception, true, addresses);
 }
 
 static void handleUncaughtException(NSException* exception) {
     handleException(exception, false, [exception callStackReturnAddresses]);
+=======
+static void handleCurrentSnapshotUserReportedException(NSException* exception) {
+    handleException(exception, true);
+}
+
+static void handleUncaughtException(NSException* exception) {
+    handleException(exception, false);
+>>>>>>> report_current_state_exception
 }
 
 // ============================================================================
