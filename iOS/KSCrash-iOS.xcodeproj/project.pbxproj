@@ -6,6 +6,20 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		A3465FAC204411C5001144B3 /* framework */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = A3465FAF204411C5001144B3 /* Build configuration list for PBXAggregateTarget "framework" */;
+			buildPhases = (
+				A3465FB0204411CB001144B3 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = framework;
+			productName = framework;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		03DE7C411C84DF8100F789BA /* KSCrashC.c in Sources */ = {isa = PBXBuildFile; fileRef = CBF53D1E17EB765C0056DA83 /* KSCrashC.c */; };
 		03DE7C421C84DF8100F789BA /* KSCrashC.h in Headers */ = {isa = PBXBuildFile; fileRef = CBF53D1F17EB765C0056DA83 /* KSCrashC.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1906,6 +1920,10 @@
 					03DE7B691C84DEF700F789BA = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
+					A3465FAC204411C5001144B3 = {
+						CreatedOnToolsVersion = 9.3;
+						ProvisioningStyle = Automatic;
+					};
 					CB6D133217EB749A00BC2C04 = {
 						TestTargetID = CB6D132517EB749A00BC2C04;
 					};
@@ -1928,6 +1946,7 @@
 				CB6D133217EB749A00BC2C04 /* KSCrashTests */,
 				03DE7B691C84DEF700F789BA /* KSCrash */,
 				EDF2BE781CCF15AD004BADF4 /* KSCrash_static */,
+				A3465FAC204411C5001144B3 /* framework */,
 			);
 		};
 /* End PBXProject section */
@@ -1959,6 +1978,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A3465FB0204411CB001144B3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "FRAMEWORK_NAME=\"KSCrash\"\n\nSIMULATOR_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${FRAMEWORK_NAME}.framework\"\nDEVICE_LIBRARY_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${FRAMEWORK_NAME}.framework\"\n\n\nSIMULATOR_DSYM_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphonesimulator/${FRAMEWORK_NAME}.framework.dSYM\"\nDEVICE_DSYM_PATH=\"${BUILD_DIR}/${CONFIGURATION}-iphoneos/${FRAMEWORK_NAME}.framework.dSYM\"\n\nUNIVERSAL_LIBRARY_DIR=\"${BUILD_DIR}/${CONFIGURATION}-iphoneuniversal\"\n\nFRAMEWORK=\"${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.framework\"\n\nDSYM=\"${FRAMEWORK}.dSYM\"\n\nxcodebuild -workspace ../iOS.xcworkspace -scheme KSCrash-iOS -sdk iphonesimulator -configuration ${CONFIGURATION} clean install CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphonesimulator 2>&1\n\necho \"sim path\"\necho ${BUILD_DIR}/${CONFIGURATION}-iphonesimulator\n\nxcodebuild -workspace ../iOS.xcworkspace -scheme KSCrash-iOS -sdk iphoneos -configuration ${CONFIGURATION} clean install CONFIGURATION_BUILD_DIR=${BUILD_DIR}/${CONFIGURATION}-iphoneos 2>&1\n\necho \"device path\"\necho ${BUILD_DIR}/${CONFIGURATION}-iphoneos\n\nrm -rf \"${UNIVERSAL_LIBRARY_DIR}\"\n\nmkdir \"${UNIVERSAL_LIBRARY_DIR}\"\n\necho \"UNIVERSAL LIBRARY DIR\"\necho ${UNIVERSAL_LIBRARY_DIR}\n\nmkdir \"${FRAMEWORK}\"\n\ncp -r \"${DEVICE_LIBRARY_PATH}/.\" \"${FRAMEWORK}\"\n\nlipo \"${SIMULATOR_LIBRARY_PATH}/${FRAMEWORK_NAME}\" \"${DEVICE_LIBRARY_PATH}/${FRAMEWORK_NAME}\" -create -output \"${FRAMEWORK}/${FRAMEWORK_NAME}\" | echo\n\nmkdir \"${DSYM}\"\n\ncp -r \"${DEVICE_DSYM_PATH}/.\" \"${DSYM}\"\n\nlipo -create -output \"${FRAMEWORK}.dSYM/Contents/Resources/DWARF/${FRAMEWORK_NAME}\" \\\n\"${DEVICE_DSYM_PATH}/Contents/Resources/DWARF/${FRAMEWORK_NAME}\" \\\n\"${SIMULATOR_DSYM_PATH}/Contents/Resources/DWARF/${FRAMEWORK_NAME}\" || exit 1\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		03DE7B651C84DEF700F789BA /* Sources */ = {
@@ -2292,7 +2327,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -2308,6 +2343,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MODULEMAP_FILE = ../Source/Framework/module.modulemap;
 				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = org.stenerud.KSCrash;
 				PRODUCT_NAME = KSCrash;
 				SKIP_INSTALL = YES;
@@ -2341,12 +2377,33 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MODULEMAP_FILE = ../Source/Framework/module.modulemap;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = org.stenerud.KSCrash;
 				PRODUCT_NAME = KSCrash;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A3465FAD204411C5001144B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A3465FAE204411C5001144B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -2635,6 +2692,15 @@
 			buildConfigurations = (
 				03DE7B6F1C84DEF800F789BA /* Debug */,
 				03DE7B701C84DEF800F789BA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A3465FAF204411C5001144B3 /* Build configuration list for PBXAggregateTarget "framework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A3465FAD204411C5001144B3 /* Debug */,
+				A3465FAE204411C5001144B3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
